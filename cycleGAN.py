@@ -15,14 +15,14 @@ from keras import backend as K
 
 from tensorflow.keras.utils import plot_model
 
-import datetime
+
 import matplotlib.pyplot as plt
 import sys
 
 import numpy as np
 import os
 import pickle as pkl
-import random
+
 
 from collections import deque
 
@@ -74,7 +74,7 @@ class CycleGAN():
         
     def compile_models(self):
 
-        # Build and compile the discriminators
+        
         self.d_A = self.build_discriminator()
         self.d_B = self.build_discriminator()
         
@@ -86,7 +86,6 @@ class CycleGAN():
             metrics=['accuracy'])
 
 
-        # Build the generators
         if self.generator_type == 'unet':
             self.g_AB = self.build_generator_unet()
             self.g_BA = self.build_generator_unet()
@@ -94,29 +93,29 @@ class CycleGAN():
             self.g_AB = self.build_generator_resnet()
             self.g_BA = self.build_generator_resnet()
 
-        # For the combined model we will only train the generators
+        
         self.d_A.trainable = False
         self.d_B.trainable = False
 
-        # Input images from both domains
+      
         img_A = Input(shape=self.img_shape)
         img_B = Input(shape=self.img_shape)
 
-        # Translate images to the other domain
+   
         fake_B = self.g_AB(img_A)
         fake_A = self.g_BA(img_B)
-        # Translate images back to original domain
+
         reconstr_A = self.g_BA(fake_B)
         reconstr_B = self.g_AB(fake_A)
-        # Identity mapping of images
+
         img_A_id = self.g_BA(img_A)
         img_B_id = self.g_AB(img_B)
 
-        # Discriminators determines validity of translated images
+
         valid_A = self.d_A(fake_A)
         valid_B = self.d_B(fake_B)
 
-        # Combined model trains generators to fool discriminators
+
         self.combined = Model(inputs=[img_A, img_B],
                               outputs=[ valid_A, valid_B,
                                         reconstr_A, reconstr_B,
@@ -153,16 +152,15 @@ class CycleGAN():
             u = Concatenate()([u, skip_input])
             return u
 
-        # Image input
         img = Input(shape=self.img_shape)
 
-        # Downsampling
+   
         d1 = downsample(img, self.gen_n_filters) 
         d2 = downsample(d1, self.gen_n_filters*2)
         d3 = downsample(d2, self.gen_n_filters*4)
         d4 = downsample(d3, self.gen_n_filters*8)
 
-        # Upsampling
+
         u1 = upsample(d4, d3, self.gen_n_filters*4)
         u2 = upsample(u1, d2, self.gen_n_filters*2)
         u3 = upsample(u2, d1, self.gen_n_filters)
@@ -212,7 +210,6 @@ class CycleGAN():
             return y
 
 
-        # Image input
         img = Input(shape=self.img_shape)
 
         y = img
@@ -263,7 +260,6 @@ class CycleGAN():
 
     def train_discriminators(self, imgs_A, imgs_B, valid, fake):
 
-        # Translate images to opposite domain
         fake_B = self.g_AB.predict(imgs_A)
         fake_A = self.g_BA.predict(imgs_B)
 
@@ -273,7 +269,7 @@ class CycleGAN():
         fake_A_rnd = random.sample(self.buffer_A, min(len(self.buffer_A), len(imgs_A)))
         fake_B_rnd = random.sample(self.buffer_B, min(len(self.buffer_B), len(imgs_B)))
 
-        # Train the discriminators (original images = real / translated = Fake)
+
         dA_loss_real = self.d_A.train_on_batch(imgs_A, valid)
         dA_loss_fake = self.d_A.train_on_batch(fake_A_rnd, fake)
         dA_loss = 0.5 * np.add(dA_loss_real, dA_loss_fake)
@@ -282,7 +278,7 @@ class CycleGAN():
         dB_loss_fake = self.d_B.train_on_batch(fake_B_rnd, fake)
         dB_loss = 0.5 * np.add(dB_loss_real, dB_loss_fake)
 
-        # Total disciminator loss
+
         d_loss_total = 0.5 * np.add(dA_loss, dB_loss)
 
         return (
@@ -343,55 +339,6 @@ class CycleGAN():
                 
             self.epoch += 1
 
-    def sample_images(self, data_loader, batch_i, run_folder, test_A_file, test_B_file):
-        
-        r, c = 2, 4
-
-        for p in range(2):
-
-            if p == 1:
-                imgs_A = data_loader.load_data(domain="Gothic architecture", batch_size=1, is_testing=True)
-                imgs_B = data_loader.load_data(domain="Noodles-Pasta", batch_size=1, is_testing=True)
-            else:
-                imgs_A = data_loader.load_img('{}/Gothic architecture/{}'.format(data_loader.dataset_name, test_A_file))
-                imgs_B = data_loader.load_img('{}/Noodles-Pasta/{}'.format(data_loader.dataset_name, test_B_file))
-
-            # Translate images to the other domain
-            fake_B = self.g_AB.predict(imgs_A)
-            fake_A = self.g_BA.predict(imgs_B)
-            # Translate back to original domain
-            reconstr_A = self.g_BA.predict(fake_B)
-            reconstr_B = self.g_AB.predict(fake_A)
-
-            # ID the images
-            id_A = self.g_BA.predict(imgs_A)
-            id_B = self.g_AB.predict(imgs_B)
-
-            gen_imgs = np.concatenate([imgs_A, fake_B, reconstr_A, id_A, imgs_B, fake_A, reconstr_B, id_B])
-
-            # Rescale images 0 - 1
-            gen_imgs = 0.5 * gen_imgs + 0.5
-            gen_imgs = np.clip(gen_imgs, 0, 1)
-
-            titles = ['Original', 'Translated', 'Reconstructed', 'ID']
-            fig, axs = plt.subplots(r, c, figsize=(25,12.5))
-            cnt = 0
-            for i in range(r):
-                for j in range(c):
-                    axs[i,j].imshow(gen_imgs[cnt])
-                    axs[i, j].set_title(titles[j])
-                    axs[i,j].axis('off')
-                    cnt += 1
-            fig.savefig(os.path.join(run_folder ,"images/%d_%d_%d.png" % (p, self.epoch, batch_i)))
-            plt.close()
-
-
-    def plot_model(self, run_folder):
-        plot_model(self.combined, to_file=os.path.join(run_folder ,'viz/combined.png'), show_shapes = True, show_layer_names = True)
-        plot_model(self.d_A, to_file=os.path.join(run_folder ,'viz/d_A.png'), show_shapes = True, show_layer_names = True)
-        plot_model(self.d_B, to_file=os.path.join(run_folder ,'viz/d_B.png'), show_shapes = True, show_layer_names = True)
-        plot_model(self.g_BA, to_file=os.path.join(run_folder ,'viz/g_BA.png'), show_shapes = True, show_layer_names = True)
-        plot_model(self.g_AB, to_file=os.path.join(run_folder ,'viz/g_AB.png'), show_shapes = True, show_layer_names = True)
 
 
     def save(self, folder):
