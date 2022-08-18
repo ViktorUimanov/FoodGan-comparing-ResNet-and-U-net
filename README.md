@@ -13,4 +13,5 @@ Also images were scaled to 256x256 dimension.
 Increasing filters won't give better results, just increasing the amount of running time for each epoch. 
 Changing the lambdas won't do any better either. If we decrease the learning rate, the discriminator will have a higher loss, what will result in the following:
 # Results
-As for results, ...
+As for results, ... check
+
