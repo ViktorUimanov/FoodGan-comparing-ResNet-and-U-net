@@ -13,5 +13,10 @@ Also images were scaled to 256x256 dimension.
 Increasing filters won't give better results, just increasing the amount of running time for each epoch. 
 Changing the lambdas won't do any better either. If we decrease the learning rate, the discriminator will have a higher loss, what will result in the following:
 # Results
-As for results, ... check
+As for results, CycleGan based on U-net architechture tends to produce better result, making building to have pasta structure. Whereas ResNet architechture shows better outcomes at transofrming pasta into building. Thus, it might be concluded that for initial purposes (turning building into pasta structure) U-net is more suitable. 
+# References
+CycleGan model was taken from David Foster "Generative Deep Learning"
+Pictures of building were taken from Kaggle architechture dataset https://www.kaggle.com/datasets/wwymak/architecture-dataset
+Pictures of pasta were taken from Food 101 dataset testset https://www.kaggle.com/datasets/dansbecker/food-101
+Models, pictures, configurations, and weights are provided in the repository. You can download it to continue training for better results.
 
