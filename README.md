@@ -8,11 +8,9 @@ For the model itself we took basic main parameters:
 - Validation lambda of 1
 - Reconstructor lambda of 10
 - And for both discriminator and generator filters of 64
-Also images were![Новая таблица - Лист1-2_page-0001](https://user-images.githubusercontent.com/73700350/185763043-e90c54ac-d926-4541-b84f-a114064ddaf4.jpg)
- scaled to 256x256 dimension.
-Increasing filters won't give better results, just decreasing the amount of running time for each epoch. 
+Also images were scaled to 256x256 dimension.Increasing filters won't give better results, just decreasing the amount of running time for each epoch. 
 Changing the lambdas won't do any better either. If we decrease the learning rate, the discriminator will have a higher loss, what will result in the following:
-![Uploading Новая таблица - Лист1-2_page-0001.jpg…]()
+![Новая таблица - Лист1-2_page-0001](https://user-images.githubusercontent.com/73700350/185763068-920bd576-7702-4b80-b2e2-cc1fc5eca22d.jpg)
 # Results
 As for results, CycleGan based on U-net architechture tends to produce better result, making building to have pasta structure. Whereas ResNet architechture shows better outcomes at transofrming pasta into building. Thus, it might be concluded that for initial purposes (turning building into pasta structure) U-net is more suitable.
 ![Новая таблица - Лист1-1_page-0001](https://user-images.githubusercontent.com/73700350/185762630-b587a9bf-8ce4-405f-8a04-3bf8056d8ef1.jpg)
