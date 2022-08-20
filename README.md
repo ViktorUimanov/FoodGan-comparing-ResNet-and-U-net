@@ -20,7 +20,6 @@ As for results, CycleGan based on U-net architechture tends to produce better re
 - Pictures of pasta were taken from Food 101 dataset testset https://www.kaggle.com/datasets/dansbecker/food-101
 - Models, pictures, configurations, and weights are provided in the repository. You can download it to continue training for better results.
 
-[Новая таблица - Лист1.pdf](https://github.com/ViktorUimanov/FoodGan-comparing-ResNet-and-U-net/files/9387874/-.1.pdf)
 
-пук
+![Новая таблица - Лист1-1_page-0001](https://user-images.githubusercontent.com/73700350/185762630-b587a9bf-8ce4-405f-8a04-3bf8056d8ef1.jpg)
 
